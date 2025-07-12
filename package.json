@@ -1,0 +1,11 @@
+{
+  "name": "youtube_clone",
+  "version": "1.0.0",
+  "description": "A full stack project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Ganesh Pawar",
+  "license": "ISC"
+}
