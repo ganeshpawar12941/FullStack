@@ -1,4 +1,4 @@
-import assyncHandler from '../utils/asyncHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import uplaoadToCloudinary from '../models/cloudinary.js';
@@ -6,7 +6,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 
 
 
-const registerUser = assyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
     const { username, password, email, fullName } = req.body
     console.log(req.body);
     console.log("email = ", email);
@@ -35,7 +35,7 @@ const registerUser = assyncHandler(async (req, res) => {
 
     //user existing check
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username, email }]
     })
 
@@ -49,6 +49,7 @@ const registerUser = assyncHandler(async (req, res) => {
 
     const avatarLoaclpath = req.files?.avatar[0]?.path
     console.log(req.files);
+    // console.log(req.files.path);
     const coverImageLocalPath = req.files?.coverImage[0]?.path
 
     if (!avatarLoaclpath) {
@@ -66,7 +67,7 @@ const registerUser = assyncHandler(async (req, res) => {
 
     //Store user in database
 
-    const user = User.create({
+    const user = await User.create({
         username: username.toLowerCase(),
         email,
         fullName,
@@ -78,7 +79,7 @@ const registerUser = assyncHandler(async (req, res) => {
 
     //Exclude password and refreshToken from the response
 
-    const userCreated = await user.findById(user._id).select("-password -refreshToken")
+    const userCreated = await User.findById(user._id).select("-password -refreshToken")
 
     if (!userCreated) {
         throw new ApiError(500, "Failed to create user" ,["User creation failed, please try again later"],"User creation failed");
@@ -88,7 +89,7 @@ const registerUser = assyncHandler(async (req, res) => {
 
     return res.status(201).json(
        new ApiResponse(
-        200,userCreated, "User registered successfully"
+        201,userCreated, "User registered successfully"
        )
     )
 
