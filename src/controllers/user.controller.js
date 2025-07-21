@@ -1,8 +1,10 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
-import uplaoadToCloudinary from '../models/cloudinary.js';
+import uplaoadToCloudinary from '../utils/cloudinary.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import jwt from 'jsonwebtoken'
+import { deletefile } from '../utils/deletefIlefromcloudinary.js';
 
 const getAccessTokenAndRefreshToken = async (userid) => {
     try {
@@ -176,7 +178,7 @@ const loginUser = asyncHandler(async (req, res) => {
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
         .json(
-           new ApiResponse(
+            new ApiResponse(
                 200,
                 {
                     userResponse,
@@ -218,9 +220,196 @@ const logoutUser = asyncHandler(async (req, res) => {
         )
 })
 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingrefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    if (!incomingrefreshToken) {
+        throw new ApiError(400, "Unathourized Request")
+    }
+    try {
+        const decodedToken = jwt.verify(incomingrefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const user = await User.findById(decodedToken?._id)
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh Token")
+        }
+
+        if (user?.refreshToken !== incomingrefreshToken) {
+            throw new ApiError(400, "user not found")
+        }
+
+        const { accessToken, newRefreshToken } = getAccessTokenAndRefreshToken(user._id)
+
+        const options = {
+            httpOnly: true,
+            Secure: true
+        }
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    {
+                        accessToken: accessToken,
+                        refreshToken: newRefreshToken
+                    },
+                    "Access token updated successfully"
+                )
+            )
+    } catch (error) {
+        throw new ApiError(400, error?.message || "Invalid refresh token")
+    }
+})
+
+const changecurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword, cnfmnewPassword } = req.body;
+    if (newPassword !== cnfmnewPassword) {
+        throw new ApiError(400, "password not matched")
+    }
+
+    const user = User.findById(req.user?._id);
+    const ispassword = user.isPasswordCorrect(oldPassword)
+    if (!ispassword) {
+        throw new ApiError(400, "oldpassword do not match")
+    }
+
+    user.password = newPassword;
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Password changed successfully")
+    )
+})
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            req.user,
+            "user fetched sucessfully"
+        )
+    )
+})
+
+const updatecoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalpath = req.file?.path;
+    if (!coverImageLocalpath) {
+        throw new ApiError(400, "coverImage file is missing")
+    }
+
+    const existingUser = await User.findById(req.user?._id);
+    const oldcoverImageUrl = existingUser?.coverImage;
+    console.log("oldcoverImageUrl is ",oldcoverImageUrl)
+    if(!oldcoverImageUrl){
+        throw new ApiError(401,"Old image url doesnt exist")
+    }
+
+    const response = await deletefile(oldcoverImageUrl)
+    if(response.response=="ok"){
+        console.log("Old file deleted successfully")
+    }
+
+    const coverImage = await uplaoadToCloudinary(coverImageLocalpath)
+
+    if (!coverImage.url) {
+        throw new ApiError(400, "Error while uploading coverImage file")
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage: coverImage.url,
+            }
+        },
+        {
+            new: true
+        }
+    ).select("-password")
+
+    return res.status(200)
+        .json(
+            200,
+            user,
+            "cover Image updated Successfully"
+        )
+
+})
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalpath = req.file?.path;
+    if (!avatarLocalpath) {
+        throw new ApiError(400, "avatar file is missing")
+    }
+    const avatar = await uplaoadToCloudinary(avatarLocalpath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading avatar file")
+    }
+
+
+    const existingUser = await User.findById(req.user?._id);
+    const oldAvatarUrl = existingUser?.avatar;
+    console.log("oldAvatarUrl is ",oldAvatarUrl)
+    if(!oldAvatarUrl){
+        throw new ApiError(401,"Old image url doesnt exist")
+    }
+
+    const response = await deletefile(oldAvatarUrl)
+    if(response.response=="ok"){
+        console.log("Old file deleted successfully")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url,
+            }
+        },
+        {
+            new: true
+        }
+    ).select("-password")
+
+
+    return res.status(200)
+        .json(
+            200,
+            user,
+            "Avatar image updated Successfully"
+        )
+
+})
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body
+    if (!fullName || !email) {
+        throw new ApiError(400, "All fields are required")
+    }
+    const user = User.findByIdAndUpdate(req.user?._id,
+        {
+            set: {
+                fullName,
+                email
+            }
+        },
+        {
+            new: true
+        }
+    ).select("-password")
+
+    return res.status(200).json(
+        new ApiResponse(200,user,"Account details updated sucessfully")
+    )
+
+})
 
 export {
     registerUser,
     loginUser,
     logoutUser,
+    refreshAccessToken,
+    updateAvatar,
+    updatecoverImage,
+    changecurrentPassword,
+    getCurrentUser,
+    updateAccountDetails
 };
