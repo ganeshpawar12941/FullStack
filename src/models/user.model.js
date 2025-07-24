@@ -54,6 +54,8 @@ const userSchema = new Schema(
     }
 )
 
+// userSchema.index({ username: 1 });
+
 userSchema.pre("save", async function(next){
     if (!this.isModified("password")) {
         return next();
@@ -63,6 +65,10 @@ userSchema.pre("save", async function(next){
 })
 
 userSchema.methods.isPasswordCorrect = async function (password) {
+    if (!password || !this.password) {
+    console.warn("Password or enteredPassword missing during compare");
+    return false; // Prevents crash
+  }
     return await bcrypt.compare(password, this.password);
 };
 

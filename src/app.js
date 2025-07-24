@@ -31,7 +31,7 @@ import userRouter from "./routes/user.route.js"
 app.use("/api/v1/users",userRouter)
 
 
-//https://localhost:5761/api/v1/users/register
+//https://localhost:8000/api/v1/users/register
 
 
 export {app}
