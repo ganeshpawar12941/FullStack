@@ -30,6 +30,10 @@ import userRouter from "./routes/user.route.js"
 
 app.use("/api/v1/users",userRouter)
 
+import tweetRouter from "./routes/tweet.route.js"
+
+app.use("/api/v1/tweets",tweetRouter)
+
 
 //https://localhost:8000/api/v1/users/register
 
