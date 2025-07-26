@@ -300,6 +300,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updatecoverImage = asyncHandler(async (req, res) => {
     const coverImageLocalpath = req.file?.path;
+    // console.log("req.file", req.file)
     if (!coverImageLocalpath) {
         throw new ApiError(400, "coverImage file is missing")
     }

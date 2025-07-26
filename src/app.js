@@ -34,6 +34,14 @@ import tweetRouter from "./routes/tweet.route.js"
 
 app.use("/api/v1/tweets",tweetRouter)
 
+import commentRouter from "./routes/comment.route.js"
+
+app.use("/api/v2/comments",commentRouter)
+
+import videoRouter from "./routes/video.route.js"
+
+app.use("/api/v1/videos",videoRouter)
+
 
 //https://localhost:8000/api/v1/users/register
 

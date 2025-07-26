@@ -12,7 +12,7 @@ import {
     updatecoverImage,
     changecurrentPassword,
 } from "../controllers/user.controller.js";
-import upload from "../middlewares/multer.middleware.js";
+import {upload} from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
