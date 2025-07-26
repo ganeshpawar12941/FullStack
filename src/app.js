@@ -36,11 +36,20 @@ app.use("/api/v1/tweets",tweetRouter)
 
 import commentRouter from "./routes/comment.route.js"
 
-app.use("/api/v2/comments",commentRouter)
+app.use("/api/v1/comments",commentRouter)
 
 import videoRouter from "./routes/video.route.js"
 
 app.use("/api/v1/videos",videoRouter)
+
+import likeRouter from "./routes/like.route.js"
+
+app.use("/api/v1/likes",likeRouter)
+
+
+import playlistrouter from "./routes/playlist.route.js"
+
+app.use("/api/v1/playlists",playlistrouter)
 
 
 //https://localhost:8000/api/v1/users/register

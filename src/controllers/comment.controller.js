@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose,{ isValidObjectId } from "mongoose"
 import { Comment } from "../models/comment.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import  ApiResponse  from "../utils/ApiResponse.js"
@@ -58,11 +58,13 @@ const addComment = asyncHandler(async (req, res) => {
         content: content.trim(),
         video: videoId,
         owner: req.user._id
-    }).populate("owner", "username avatar")
+    })
 
     if (!comment) {
         throw new ApiError(500, "Failed to create comment")
     }
+
+    await comment.populate("owner", "username avatar")
 
     return res.status(200)
         .json(

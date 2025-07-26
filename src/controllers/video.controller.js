@@ -82,7 +82,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description,
         duration,
         owner: req.user._id
-    })
+    }).populate("owner", "username avatar")
     return res.status(200)
         .json(
             new ApiResponse(200, newvideo, "Video uploaded successfully")
@@ -125,8 +125,8 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const { title, description } = req.body;
     const thumbnail = req.file
-    console.log("req.file",req.file)
-    console.log("thumbnail",thumbnail)
+    //console.log("req.file",req.file)
+    //console.log("thumbnail",thumbnail)
 
     let updatedThumbnail = null;
     if (thumbnail) {
@@ -138,20 +138,20 @@ const updateVideo = asyncHandler(async (req, res) => {
         );
     }
 
-    console.log("updatedThumbnail",updatedThumbnail)
+    //console.log("updatedThumbnail",updatedThumbnail)
 
     const updateData = { title, description };
     if (updatedThumbnail) {
         updateData.thumbnail = updatedThumbnail.Location;
     }
 
-    console.log("updateddata",updateData)
+    //console.log("updateddata",updateData)
     const updatedVideo = await Video.findByIdAndUpdate(
         videoId,
         updateData,
           {
         new: true,
-    });
+    }).populate("owner", "username avatar");
 
     return res.status(200).json(
         new ApiResponse(200, updatedVideo, "Video updated successfully")
@@ -207,7 +207,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         {
             new: true
         }
-    )
+    ).populate("owner", "username avatar");
   
     // console.log(updatedVideo)
 
@@ -236,7 +236,10 @@ const incrementvideoviews = asyncHandler(async(req,res)=>{
         {
             new:true
         }
-    )
+    ).populate("owner","username avatar")
+    if(!video){
+        throw new ApiError(404,"Video not found")
+    }
 
     return res.status(200).json(
         new ApiResponse(200,video,"Video views incremented successfully")
