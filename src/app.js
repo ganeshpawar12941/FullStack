@@ -51,6 +51,14 @@ import playlistrouter from "./routes/playlist.route.js"
 
 app.use("/api/v1/playlists",playlistrouter)
 
+import dashboardRouter from "./routes/dashboard.route.js"
+
+app.use("/api/v1/dashboard",dashboardRouter)
+
+
+import healthcheckRouter from "./routes/healthcheck.route.js"
+
+app.use("/api/v1/healthcheck",healthcheckRouter)
 
 //https://localhost:8000/api/v1/users/register
 
