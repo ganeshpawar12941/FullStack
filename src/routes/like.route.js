@@ -10,6 +10,10 @@ import {
 
 const router = express.Router();
 
+// Public routes (no authentication required)
+router.route("/public/video/:videoId").get(getAllLikedVideos);
+
+// Protected routes (authentication required)
 router.use(verifyJWT);
 
 router.route("/").get(getAllLikedVideos);

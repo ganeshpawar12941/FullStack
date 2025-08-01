@@ -55,6 +55,10 @@ import dashboardRouter from "./routes/dashboard.route.js"
 
 app.use("/api/v1/dashboard",dashboardRouter)
 
+import subscriptionRouter from "./routes/subscription.route.js"
+
+app.use("/api/v1/subscriptions",subscriptionRouter)
+
 
 import healthcheckRouter from "./routes/healthcheck.route.js"
 

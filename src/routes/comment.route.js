@@ -8,6 +8,10 @@ import {getVideoComments,
 
 const router = express.Router();
 
+// Public routes (no authentication required)
+router.route("/public/video/:videoId").get(getVideoComments);
+
+// Protected routes (authentication required)
 router.use(verifyJWT);
 
 router.route("/:videoId").get(getVideoComments).post(addComment);

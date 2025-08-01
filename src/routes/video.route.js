@@ -13,6 +13,11 @@ import { videoUpload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
+// Public routes (no authentication required)
+router.route("/public").get(getAllVideos);
+router.route("/public/:videoId").get(getVideoById);
+
+// Protected routes (authentication required)
 router.use(verifyJWT);
 
 router.route("/").get(getAllVideos).post(

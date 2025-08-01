@@ -1,16 +1,22 @@
 {
   "name": "youtube_clone",
   "version": "1.0.0",
-  "description": "A full stack project",
-  "main": "index.js",
+  "description": "A full stack YouTube clone project",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": " nodemon src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "frontend": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:preview": "cd frontend && npm run preview",
+    "dev:full": "concurrently \"npm run dev\" \"npm run frontend\"",
+    "install:all": "npm install && cd frontend && npm install"
   },
   "author": "Ganesh Pawar",
   "license": "ISC",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "concurrently": "^8.2.2",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
   },
